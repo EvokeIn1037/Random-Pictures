@@ -308,6 +308,25 @@ int openPicFile() {
     return -1;
 }
 
+std::string getExecutablePath() {
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string exePath(buffer);
+    exePath = exePath.substr(0, exePath.length() - 9);
+    std::string resultPath = "";
+    int start = 0, len = 0;
+    for (int i = 0; i < exePath.length(); i++) {
+        if (exePath[i] == '\\') {
+            resultPath += (exePath.substr(start, len) + '/');
+            start = i + 1;
+            len = 0;
+        }
+        else len++;
+    }
+    resultPath += exePath.substr(start, len);
+    return resultPath;
+}
+
 // Slot for QPushButton click
 void Setu::handleButtonClicked()
 {
@@ -360,7 +379,9 @@ void Setu::handleButtonClicked()
         }
         case 0: {
             ui->labelHint->clear();
-            ui->labelHint->setText(QString::fromUtf8(std::string("当前图片路径: setu") + PICPATH));
+            std::string runningExePath = getExecutablePath();
+            int pathLen = PICPATH.length();
+            ui->labelHint->setText(QString::fromUtf8(std::string("当前图片路径: ") + runningExePath + PICPATH.substr(1, pathLen - 1)));
             HASPIC = true;
             // 3. Display an image in QLabel
             QString imagePath = QString::fromUtf8(PICPATH);
